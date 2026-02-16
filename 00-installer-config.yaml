@@ -1,0 +1,16 @@
+#config
+network:
+  renderer: networkd
+  ethernets:
+    ens18:
+      dhcp4: no
+      addresses:
+        - 10.0.5.12/24
+      routes:
+        - to: default
+          via: 10.0.5.2
+      nameservers:
+        search:
+          - "dylan.local"
+        addresses: [10.0.5.5]
+  version: 2
