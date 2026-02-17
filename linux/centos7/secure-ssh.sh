@@ -1,15 +1,15 @@
 #code
-
 # secure-ssh.sh
 # author dylanverge
 # adds a public key from the local repo or curled from the remote repo 
 # removes roots ability to ssh in
-
 # Creates a user and adds the public key
 sudo useradd -m -d /home/${1} -s /bin/bash ${1}
 sudo mkdir /home/${1}/.ssh
-cd /home/dylan/SYS-265
-sudo cp /home/dylan/SYS-265/linux/public-keys/id_rsa.pub /home/${1}/.ssh/authorized_keys
+
+# Use your actual SSH public key instead of repo path
+sudo cp ~/.ssh/id_rsa.pub /home/${1}/.ssh/authorized_keys
+
 sudo chmod 700 /home/${1}/.ssh
 sudo chmod 600 /home/${1}/.ssh/authorized_keys
 sudo chown -R ${1}:${1} /home/${1}/.ssh
