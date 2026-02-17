@@ -1,25 +1,25 @@
-#secure-ssh.sh 
-#author hsanokklis 
-#creates a new ssh user using $1 
-#adds a public key from the local repo or curled from the remote repo 
-#removes roots ability to ssh in 
-echo "Script will run once you input the sudo password -->" 
+#code
 
+# secure-ssh.sh
+# author dylanverge
+# adds a public key from the local repo or curled from the remote repo 
+# removes roots ability to ssh in
 
-#Check if username is provided as a parameter 
-if [ $# -ne 1 ]; then
-    echo "Usage: $0 <username>" 
-    exit 1
-fi 
+# Creates a user and adds the public key
+sudo useradd -m -d /home/${1} -s /bin/bash ${1}
+sudo mkdir /home/${1}/.ssh
+cd /home/dylan/SYS-265
+sudo cp /home/dylan/SYS-265/linux/public-keys/id_rsa.pub /home/${1}/.ssh/authorized_keys
+sudo chmod 700 /home/${1}/.ssh
+sudo chmod 600 /home/${1}/.ssh/authorized_keys
+sudo chown -R ${1}:${1} /home/${1}/.ssh
 
-username="$1" 
-
-# Create user with passwordless authentication 
-sudo useradd -m -s /bin/bash "$username" 
-sudo mkdir -p /home/"$username"/.ssh
-sudo cp /home/dylan/SYS265/linux/public-keys/id_rsa.pub /home/"$username"/.ssh/authorized_keys
-sudo chmod 700 /home/"$username"/.ssh 
-sudo chmod 600 /home/"$username"/.ssh/authorized_keys
-sudo chown -R "$username:$username" /home/"$username"/.ssh
-
-echo "Passwordless user '$username' has been created with associated private key." 
+# Blocking root ssh login
+if grep -q "^PermitRootLogin" /etc/ssh/sshd_config; then
+   sudo sed -i 's/^PermitRootLogin.*/PermitRootLogin no/' /etc/ssh/sshd_config
+else
+   echo "PermitRootLogin not found in /etc/ssh/sshd_config"
+fi
+note
+# Restart SSH
+sudo systemctl restart sshd.service
