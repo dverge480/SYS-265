@@ -1,39 +1,25 @@
 #code
 
+# secure-ssh.sh
+# author dylanverge
+# adds a public key from the local repo or curled from the remote repo 
+# removes roots ability to ssh in
 
+# Creates a user and adds the public key
+sudo useradd -m -d /home/${1} -s /bin/bash ${1}
+sudo mkdir /home/${1}/.ssh
+cd /home/dylan/SYS-265
+sudo cp /home/dylan/SYS-265/linux/public-keys/id_rsa.pub /home/${1}/.ssh/authorized_keys
+sudo chmod 700 /home/${1}/.ssh
+sudo chmod 600 /home/${1}/.ssh/authorized_keys
+sudo chown -R ${1}:${1} /home/${1}/.ssh
 
-# Check if username argument is provided
-if [ -z "$1" ]; then
-    echo "Usage: $0 <username>"
-    exit 1
-fi
-
-USER=$1
-KEY_PATH="/home/dylan/SYS-265/linux/public-keys/id_rsa.pub"
-
-
-sudo useradd -m -s /bin/bash "$USER"
-sudo mkdir -p "/home/$USER/.ssh"
-
-
-if [ -f "$KEY_PATH" ]; then
-    sudo cp "$KEY_PATH" "/home/$USER/.ssh/authorized_keys"
+# Blocking root ssh login
+if grep -q "^PermitRootLogin" /etc/ssh/sshd_config; then
+   sudo sed -i 's/^PermitRootLogin.*/PermitRootLogin no/' /etc/ssh/sshd_config
 else
-    echo "Error: Public key not found at $KEY_PATH"
-    exit 1
+   echo "PermitRootLogin not found in /etc/ssh/sshd_config"
 fi
-
-sudo chmod 700 "/home/$USER/.ssh"
-sudo chmod 600 "/home/$USER/.ssh/authorized_keys"
-sudo chown -R "$USER:$USER" "/home/$USER/.ssh"
-
-
-if grep -q "PermitRootLogin" /etc/ssh/sshd_config; then
-    sudo sed -i 's/.*PermitRootLogin.*/PermitRootLogin no/' /etc/ssh/sshd_config
-else
-    echo "PermitRootLogin no" | sudo tee -a /etc/ssh/sshd_config
-fi
-
-
-# 6. Restart SSH
-sudo systemctl restart ssh
+note
+# Restart SSH
+sudo systemctl restart sshd.service
