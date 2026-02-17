@@ -4,6 +4,7 @@
 # author dylanverge
 # adds a public key from the local repo or curled from the remote repo 
 # removes roots ability to ssh in
+#code
 
 # Creates a user and adds the public key
 sudo useradd -m -d /home/${1} -s /bin/bash ${1}
